@@ -3,3 +3,9 @@ nixPkgs = ["nodejs_18"]
 
 [phases.install]
 cmds = ["npm install --legacy-peer-deps"]
+
+[phases.build]
+cmds = ["echo build done"]
+
+[start]
+cmd = "npx tsx backend/server.ts"
