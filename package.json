@@ -3,10 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "bunx rork start -p js07wehz58fmkwufhulcr --tunnel",
+    "start": "npx tsx backend/server.ts",
     "start-web": "bunx rork start -p js07wehz58fmkwufhulcr --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p js07wehz58fmkwufhulcr --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "install": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
