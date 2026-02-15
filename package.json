@@ -6,8 +6,7 @@
     "start": "npx tsx backend/server.ts",
     "start-web": "bunx rork start -p js07wehz58fmkwufhulcr --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p js07wehz58fmkwufhulcr --web --tunnel",
-    "lint": "expo lint",
-    "install": "npm install --legacy-peer-deps"
+    "lint": "expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
