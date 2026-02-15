@@ -6,12 +6,15 @@
     "start": "tsx server.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.11.0",
+    "@hono/node-server": "^1.19.9",
     "@hono/trpc-server": "^0.4.2",
+    "@trpc/server": "^11.8.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
-    "hono": "^4.4.7",
-    "node-cron": "^3.0.3",
+    "googleapis": "^170.1.0",
+    "hono": "^4.11.3",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.2.1",
     "superjson": "^2.2.6",
     "tsx": "^4.21.0",
     "xlsx": "^0.18.5",
