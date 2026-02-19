@@ -4,14 +4,13 @@ import app from './hono';
 
 config();
 
-const port = Number(process.env.PORT); // 🚨 MUST use Railway PORT
+const port = Number(process.env.PORT);
 
-console.log('🚀 Starting Real Estate Lead Management API...');
-console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-console.log(`🔌 Railway Port: ${port}`);
+console.log('🚀 Starting API...');
+console.log('PORT from Railway:', port);
 
 serve({
   fetch: app.fetch,
   port: port,
-  hostname: '0.0.0.0',   // required for Railway
+  hostname: '0.0.0.0',
 });
