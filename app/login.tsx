@@ -12,12 +12,14 @@ import {
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -33,6 +35,8 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await login(email.toLowerCase().trim(), password);
+      console.log('Login successful, navigating to dashboard');
+      router.replace('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       Alert.alert('Login Failed', error?.message || 'Invalid credentials. Please try again.');
