@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { trpc } from '@/lib/trpc';
+import { scheduleFollowUpNotification } from '@/lib/notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CALL_STATUSES = [
@@ -66,6 +67,7 @@ export default function LogInteractionScreen() {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
+  const { data: leadData } = trpc.leads.getById.useQuery({ id: leadId });
   const createMutation = trpc.interactions.create.useMutation();
   const queryClient = trpc.useUtils();
 
@@ -91,6 +93,20 @@ export default function LogInteractionScreen() {
         notes,
         followUpDateTime: followUpDate,
       });
+
+      if (followUpDate) {
+        try {
+          await scheduleFollowUpNotification({
+            leadId,
+            clientName: leadData?.clientName || 'Lead',
+            followUpDateTime: followUpDate,
+            notes: notes || undefined,
+          });
+          console.log('[LogInteraction] Follow-up notification scheduled');
+        } catch (notifError) {
+          console.log('[LogInteraction] Could not schedule notification:', notifError);
+        }
+      }
 
       queryClient.interactions.getByLeadId.invalidate({ leadId });
       queryClient.dashboard.getStats.invalidate();

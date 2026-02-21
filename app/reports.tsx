@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { File, Paths } from 'expo-file-system';
+import * as FileSystemLegacy from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import {
   ArrowLeft,
@@ -140,16 +140,47 @@ export default function ReportsScreen() {
         link.click();
         document.body.removeChild(link);
       } else {
-        const file = new File(Paths.document, fileName);
-        await file.write(base64, { encoding: 'base64' });
+        const fileUri = `${FileSystemLegacy.cacheDirectory}${fileName}`;
         
-        console.log('[Reports] File saved to:', file.uri);
+        await FileSystemLegacy.writeAsStringAsync(fileUri, base64, {
+          encoding: FileSystemLegacy.EncodingType.Base64,
+        });
         
+        console.log('[Reports] File saved to cache:', fileUri);
+
+        if (Platform.OS === 'android') {
+          try {
+            const permissions = await FileSystemLegacy.StorageAccessFramework.requestDirectoryPermissionsAsync();
+            if (permissions.granted) {
+              const destinationUri = await FileSystemLegacy.StorageAccessFramework.createFileAsync(
+                permissions.directoryUri,
+                fileName,
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              );
+              const fileContent = await FileSystemLegacy.readAsStringAsync(fileUri, {
+                encoding: FileSystemLegacy.EncodingType.Base64,
+              });
+              await FileSystemLegacy.writeAsStringAsync(destinationUri, fileContent, {
+                encoding: FileSystemLegacy.EncodingType.Base64,
+              });
+              console.log('[Reports] File saved to device:', destinationUri);
+              Alert.alert('Downloaded', `Report saved to your selected folder.`);
+              return;
+            }
+          } catch (safError) {
+            console.log('[Reports] SAF save failed, falling back to share:', safError);
+          }
+        }
+
         const canShare = await Sharing.isAvailableAsync();
         if (canShare) {
-          await Sharing.shareAsync(file.uri);
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            dialogTitle: `Save ${fileName}`,
+            UTI: 'com.microsoft.excel.xlsx',
+          });
         } else {
-          Alert.alert('Success', `Report saved to ${file.uri}`);
+          Alert.alert('Success', `Report saved to ${fileUri}`);
         }
       }
     } catch (error) {
