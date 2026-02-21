@@ -28,6 +28,31 @@ const INTEREST_LEVELS = [
   { value: 'hot', label: 'Hot', color: '#e74c3c' },
 ] as const;
 
+const formatIndianCurrency = (num: number): string => {
+  if (num === 0) return '0';
+  if (isNaN(num)) return '';
+
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+
+  if (absNum >= 10000000) {
+    const crores = absNum / 10000000;
+    const formatted = crores % 1 === 0 ? crores.toFixed(0) : crores.toFixed(2).replace(/\.?0+$/, '');
+    return `${sign}${formatted} Crore${crores >= 2 ? 's' : ''}`;
+  }
+  if (absNum >= 100000) {
+    const lakhs = absNum / 100000;
+    const formatted = lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(2).replace(/\.?0+$/, '');
+    return `${sign}${formatted} Lakh${lakhs >= 2 ? 's' : ''}`;
+  }
+  if (absNum >= 1000) {
+    const thousands = absNum / 1000;
+    const formatted = thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(2).replace(/\.?0+$/, '');
+    return `${sign}${formatted} Thousand`;
+  }
+  return `${sign}${absNum.toLocaleString('en-IN')}`;
+};
+
 export default function LogInteractionScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -169,6 +194,11 @@ export default function LogInteractionScreen() {
               keyboardType="numeric"
               testID="budget-input"
             />
+            {budget.length > 0 && !isNaN(parseFloat(budget.replace(/,/g, ''))) && (
+              <View style={styles.budgetTextContainer}>
+                <Text style={styles.budgetTextLabel}>₹ {formatIndianCurrency(parseFloat(budget.replace(/,/g, '')))}</Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.section}>
@@ -193,6 +223,7 @@ export default function LogInteractionScreen() {
                     ? followUpDate.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
+                        hour12: true,
                       })
                     : 'Select Time'}
                 </Text>
@@ -343,6 +374,20 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 100,
     paddingTop: 14,
+  },
+  budgetTextContainer: {
+    marginTop: 8,
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#4a90e2',
+  },
+  budgetTextLabel: {
+    fontSize: 15,
+    color: '#4a90e2',
+    fontWeight: '600' as const,
   },
   dateTimeContainer: {
     flexDirection: 'row',

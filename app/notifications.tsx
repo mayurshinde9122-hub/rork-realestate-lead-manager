@@ -18,7 +18,7 @@ export default function NotificationsScreen() {
       <View style={styles.cardHeader}>
         <Text style={styles.clientName}>{item.clientName}</Text>
         <Text style={styles.time}>
-          {new Date(item.followUpDateTime).toLocaleString()}
+          {new Date(item.followUpDateTime).toLocaleDateString()} {new Date(item.followUpDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
         </Text>
       </View>
       <Text style={styles.notes}>{item.notes}</Text>

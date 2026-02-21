@@ -4,13 +4,19 @@ import { db } from '../../db/database';
 import { createTRPCRouter, protectedProcedure } from '../create-context';
 
 export const leadsRouter = createTRPCRouter({
+  getFilterValues: protectedProcedure
+    .query(async () => {
+      const values = await db.getDistinctFilterValues();
+      return values;
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({
         search: z.string().optional(),
         source: z.string().optional(),
-        ownership: z.enum(['self', 'investment']).optional(),
-        furnishing: z.enum(['unfurnished', 'semi', 'fully']).optional(),
+        ownership: z.string().optional(),
+        furnishing: z.string().optional(),
         interestLevel: z.enum(['cold', 'warm', 'hot']).optional(),
         callStatus: z.enum(['not_received', 'connected', 'follow_up_needed', 'not_interested']).optional(),
         createdFrom: z.date().optional(),
@@ -18,6 +24,7 @@ export const leadsRouter = createTRPCRouter({
         modifiedFrom: z.date().optional(),
         modifiedTo: z.date().optional(),
         project: z.string().optional(),
+        interestedArea: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }) => {

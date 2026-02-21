@@ -134,7 +134,7 @@ export default function LeadDetailScreen() {
         <View style={styles.interactionRow}>
           <Text style={styles.interactionLabel}>Follow-up:</Text>
           <Text style={styles.interactionValue}>
-            {new Date(interaction.followUpDateTime).toLocaleString()}
+            {new Date(interaction.followUpDateTime).toLocaleDateString()} {new Date(interaction.followUpDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
           </Text>
         </View>
       )}

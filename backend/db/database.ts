@@ -175,6 +175,7 @@ class Database {
     modifiedFrom?: Date;
     modifiedTo?: Date;
     project?: string;
+    interestedArea?: string;
   }): Promise<Lead[]> {
     let leads = Array.from(this.leads.values()).filter(l => !l.isDeleted);
 
@@ -206,6 +207,11 @@ class Database {
     if (filters.project) {
       const project = filters.project;
       leads = leads.filter(l => l.interestedProjects.includes(project));
+    }
+
+    if (filters.interestedArea) {
+      const area = filters.interestedArea;
+      leads = leads.filter(l => l.interestedAreas.includes(area));
     }
 
     if (filters.createdFrom) {
@@ -465,6 +471,37 @@ class Database {
         n.isRead = true;
         this.notifications.set(n.id, n);
       });
+  }
+
+  async getDistinctFilterValues(): Promise<{
+    sources: string[];
+    interestedAreas: string[];
+    interestedProjects: string[];
+    ownerships: string[];
+    furnishings: string[];
+  }> {
+    const leads = Array.from(this.leads.values()).filter(l => !l.isDeleted);
+    const sources = new Set<string>();
+    const areas = new Set<string>();
+    const projects = new Set<string>();
+    const ownerships = new Set<string>();
+    const furnishings = new Set<string>();
+
+    for (const lead of leads) {
+      if (lead.source) sources.add(lead.source);
+      if (lead.ownership) ownerships.add(lead.ownership);
+      if (lead.furnishing) furnishings.add(lead.furnishing);
+      lead.interestedAreas?.forEach(a => areas.add(a));
+      lead.interestedProjects?.forEach(p => projects.add(p));
+    }
+
+    return {
+      sources: Array.from(sources).sort(),
+      interestedAreas: Array.from(areas).sort(),
+      interestedProjects: Array.from(projects).sort(),
+      ownerships: Array.from(ownerships).sort(),
+      furnishings: Array.from(furnishings).sort(),
+    };
   }
 
   async checkDuplicateLead(externalLeadId?: string, email?: string, phone?: string): Promise<Lead | undefined> {

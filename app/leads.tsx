@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Search, Filter, Plus, Phone } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { ApiLead } from '@/types/api';
@@ -31,10 +31,26 @@ const getInterestColor = (level: string) => {
 export default function LeadsScreen() {
   const [search, setSearch] = useState<string>('');
   const router = useRouter();
+  const params = useLocalSearchParams();
+
+  const filterParams = useMemo(() => {
+    const f: Record<string, string | undefined> = {};
+    if (params.source) f.source = params.source as string;
+    if (params.project) f.project = params.project as string;
+    if (params.interestedArea) f.interestedArea = params.interestedArea as string;
+    if (params.ownership) f.ownership = params.ownership as string;
+    if (params.furnishing) f.furnishing = params.furnishing as string;
+    if (params.interestLevel) f.interestLevel = params.interestLevel as string;
+    if (params.callStatus) f.callStatus = params.callStatus as string;
+    return f;
+  }, [params.source, params.project, params.interestedArea, params.ownership, params.furnishing, params.interestLevel, params.callStatus]);
+
+  const activeFilterCount = Object.keys(filterParams).length;
 
   const { data: leads, isLoading, refetch } = trpc.leads.getAll.useQuery({
     search: search || undefined,
-  });
+    ...filterParams,
+  } as any);
 
   const renderLeadCard = ({ item }: { item: ApiLead }) => {
     return (
@@ -90,11 +106,16 @@ export default function LeadsScreen() {
             />
           </View>
           <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() => router.push('/filter')}
+            style={[styles.filterButton, activeFilterCount > 0 && styles.filterButtonActive]}
+            onPress={() => router.push({ pathname: '/filter', params: filterParams as Record<string, string> })}
             testID="filter-button"
           >
             <Filter size={20} color="#fff" />
+            {activeFilterCount > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -256,6 +277,25 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     color: '#888',
+  },
+  filterButtonActive: {
+    backgroundColor: '#3a7bd5',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#e74c3c',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterBadgeText: {
+    fontSize: 11,
+    fontWeight: '700' as const,
+    color: '#fff',
   },
   fab: {
     position: 'absolute',
