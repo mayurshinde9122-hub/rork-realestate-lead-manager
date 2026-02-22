@@ -10,6 +10,7 @@ class Database {
   importStates: Map<string, ImportState> = new Map();
   importLogs: Map<string, ImportLog> = new Map();
   notifications: Map<string, Notification> = new Map();
+  private idCounter: number = 0;
 
   constructor() {
     this.seedData();
@@ -251,9 +252,10 @@ class Database {
   }
 
   async createLead(lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt' | 'isDeleted'>): Promise<Lead> {
+    this.idCounter++;
     const newLead: Lead = {
       ...lead,
-      id: `lead-${Date.now()}`,
+      id: `lead-${Date.now()}-${this.idCounter}`,
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,

@@ -253,10 +253,13 @@ export const importRouter = createTRPCRouter({
                 ? row.interested_projects.split(',').map((p: string) => p.trim())
                 : [],
               ownership:
-                row.ownership === 'investment' ? ('investment' as const) : ('self' as const),
-              furnishing: ['unfurnished', 'semi', 'fully'].includes(row.furnishing)
-                ? (row.furnishing as 'unfurnished' | 'semi' | 'fully')
-                : ('unfurnished' as const),
+                row.ownership && row.ownership.toString().toLowerCase().trim() === 'investment' ? ('investment' as const) : ('self' as const),
+              furnishing: (() => {
+                const f = row.furnishing ? row.furnishing.toString().toLowerCase().trim() : '';
+                if (f === 'fully' || f === 'full') return 'fully' as const;
+                if (f === 'semi') return 'semi' as const;
+                return 'unfurnished' as const;
+              })(),
               assignedUserId: row.assigned_user_id || ctx.user.userId,
               platform: row.platform || 'Excel File',
               campaignName: row.campaign_name || undefined,
