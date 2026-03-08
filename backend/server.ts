@@ -4,10 +4,10 @@ import app from './hono';
 
 config();
 
-const port = Number(process.env.PORT);
+const port = Number(process.env.PORT) || 10000;
 
 console.log('🚀 Starting API...');
-console.log('PORT from Railway:', port);
+console.log('PORT from Render:', port);
 
 serve({
   fetch: app.fetch,
